@@ -15,6 +15,6 @@ conf_ssh_public_key_path: "/home/tariq/.ssh/id_rsa.pub"
 conf_ssh_default_key: false
 conf_memory: 1024
 conf_cpus: 1
-conf_ssh_conf_file: "/home/tariq/inception_of_things/part_1/script/ssh_config"
+conf_ssh_conf_file: "/home/tariq/inception_of_things/part_1/config/ssh_config"
 conf_k3s_server_script_path: "/home/tariq/inception_of_things/part_1/script/k3s_server_script.sh"
 conf_k3s_agent_script_path: "/home/tariq/inception_of_things/part_1/script/k3s_agent_script.sh"
