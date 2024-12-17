@@ -9,7 +9,7 @@ Host TariqServer
     UserKnownHostsFile=/dev/null
     LogLevel ERROR
 
-Host TariqWorker
+Host TariqAgent
     HostName 192.168.56.111
     Port 22
     User vagrant

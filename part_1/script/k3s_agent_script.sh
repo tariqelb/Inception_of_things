@@ -27,7 +27,7 @@ echo "export KUBECONFIG=/home/vagrant/.kube/config" | sudo tee -a ~/.bashrc
 source ~/.bashrc
 
 echo "Waiting for node to join the cluster..."
-sleep 30
+sleep 15
 echo "Node is ready!"
 
 #Create the service.

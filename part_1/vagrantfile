@@ -5,11 +5,20 @@ require 'yaml'
 dir = File.join(File.dirname(File.expand_path(__FILE__)))
 vm_config = YAML.load_file("#{dir}/config/configuration.yaml")
 
-public_key = File.read(vm_config["conf_ssh_public_key_path"])
-private_key = File.read(vm_config["conf_ssh_private_key_path"])
+# Dynamically resolve relative paths to absolute paths
+server_script_path        = File.join(dir, vm_config["conf_k3s_server_script_path"])
+agent_script_path         = File.join(dir, vm_config["conf_k3s_agent_script_path"])
+ssh_config_file_path      = File.join(dir, vm_config["conf_ssh_conf_file_path"])
+ssh_private_key_path      = File.join(Dir.home, vm_config["conf_ssh_conf_file_path"])
+ssh_public_key_path       = File.join(Dir.home, vm_config["conf_ssh_conf_file_path"])
+ 
+
+#You should have a shh key pair in your home directory ~/.ssh 
+public_key = File.read(File.join(Dir.home, vm_config["conf_ssh_public_key_path"]))
+private_key = File.read(File.join(Dir.home, vm_config["conf_ssh_private_key_path"]))
 
 Vagrant.configure("2") do |config|
-	##define server machine TariqServer
+	##define server machine
 	config.vm.define vm_config["conf_server_hostname"] do |server|
 
 		#box of the magine (image)
@@ -22,18 +31,16 @@ Vagrant.configure("2") do |config|
 		
 		
 		#config ssh to connect without password
-		server.ssh.insert_key           = false
-		server.ssh.config               = vm_config["conf_ssh_conf_file"]	
+		server.ssh.insert_key           = true
+		server.ssh.config               = ssh_config_file_path
 		
 		#add new ethernet network
 		server.vm.network "private_network", type: "static", ip: vm_config["conf_server_address"]
 		
-		#pass public key to machine
+		#pass public and private key to machine
 		server.vm.provision "shell", inline: <<-SHELL
 			mkdir -p /home/vagrant/.ssh
-			rm -rf /home/vagrant/.ssh/authorized_keys
-			echo "#{public_key}" > /home/vagrant/.ssh/authorized_keys
-			chown vagrant:vagrant  /home/vagrant/.ssh/authorized_keys
+			echo "#{public_key}" >> /home/vagrant/.ssh/authorized_keys
 			#copy ssh private key to server so it can connnect to agent by ssh 
 			echo "#{private_key}" > /home/vagrant/.ssh/id_rsa
 			sudo chown vagrant:vagrant  /home/vagrant/.ssh/id_rsa
@@ -55,11 +62,11 @@ Vagrant.configure("2") do |config|
 			v.name   = vm_config["conf_server_machine_name"]
 		end
 
-		#Run script to install and configure k3s
-		server.vm.provision "shell", path: vm_config["conf_k3s_server_script_path"]
+		#Run script to install and configure k3s master
+		server.vm.provision "shell", path: server_script_path
 	end
 
-	##define machine for agent TariqAgent	-------------------------------------------------------
+	##define agent machine	-------------------------------------------------------
 	config.vm.define vm_config["conf_agent_hostname"] do |agent|
 
 		#box of the magine (image)
@@ -71,18 +78,16 @@ Vagrant.configure("2") do |config|
 		agent.vm.post_up_message	= vm_config["conf_agent_post_up_message"]
 		
 		#config ssh to connect without password
-		agent.ssh.insert_key           = false
-		agent.ssh.config               = vm_config["conf_ssh_conf_file"]
+		agent.ssh.insert_key            = true
+		agent.ssh.config                = ssh_config_file_path
 		
 		#add new ethernet network
 		agent.vm.network "private_network", type: "static", ip: vm_config["conf_agent_address"]
 		
-		#pass ssh public key to machine	
+		#pass ssh public and private key to machine	
 		agent.vm.provision "shell", inline: <<-SHELL
 			mkdir -p /home/vagrant/.ssh
-			rm -rf /home/vagrant/.ssh/authorized_keys
-			echo "#{public_key}" > /home/vagrant/.ssh/authorized_keys
-			chown vagrant:vagrant  /home/vagrant/.ssh/authorized_keys
+			echo "#{public_key}" >> /home/vagrant/.ssh/authorized_keys
 			#copy ssh private key to server so it can connnect to server by ssh 
 			echo "#{private_key}" > /home/vagrant/.ssh/id_rsa
 			sudo chown vagrant:vagrant  /home/vagrant/.ssh/id_rsa
@@ -104,7 +109,7 @@ Vagrant.configure("2") do |config|
 			v.name   = vm_config["conf_agent_machine_name"]
 		end
 
-		#Run script to install and configure k3s
-		agent.vm.provision "shell", path: vm_config["conf_k3s_agent_script_path"]
+		#Run script to install and configure k3s agent
+		agent.vm.provision "shell", path: agent_script_path
 	end
 end
