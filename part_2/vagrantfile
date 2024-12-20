@@ -1,0 +1,67 @@
+# Load yaml required libraries
+require 'yaml'
+
+# Load configuration file
+dir = File.join(File.dirname(File.expand_path(__FILE__)))
+vm_config = YAML.load_file("#{dir}/config/configuration.yaml")
+
+# Dynamically resolve relative paths to absolute paths
+server_script_path        = File.join(dir, vm_config["conf_k3s_server_script_path"])
+ssh_config_file_path      = File.join(dir, vm_config["conf_ssh_conf_file_path"])
+ssh_private_key_path      = File.join(Dir.home, vm_config["conf_ssh_conf_file_path"])
+ssh_public_key_path       = File.join(Dir.home, vm_config["conf_ssh_conf_file_path"])
+ 
+
+#You should have a shh key pair in your home directory ~/.ssh 
+public_key = File.read(File.join(Dir.home, vm_config["conf_ssh_public_key_path"]))
+private_key = File.read(File.join(Dir.home, vm_config["conf_ssh_private_key_path"]))
+
+Vagrant.configure("2") do |config|
+	##define server machine
+	config.vm.define vm_config["conf_server_hostname"] do |server|
+
+		#box of the magine (image)
+		server.vm.box			= vm_config["conf_box"]
+
+		server.vm.box_version		= vm_config["conf_box_version"]
+		server.vm.box_architecture	= vm_config["conf_box_architecture"]
+		server.vm.hostname		= vm_config["conf_server_hostname"]
+		server.vm.post_up_message	= vm_config["conf_server_post_up_message"]
+		
+		
+		#config ssh to connect without password
+		server.ssh.insert_key           = true
+		server.ssh.config               = ssh_config_file_path
+		
+		#add new ethernet network
+		server.vm.network "private_network", type: "static", ip: vm_config["conf_server_address"]
+		
+		#pass public and private key to machine
+		server.vm.provision "shell", inline: <<-SHELL
+			mkdir -p /home/vagrant/.ssh
+			echo "#{public_key}" >> /home/vagrant/.ssh/authorized_keys
+			#copy ssh private key to server so it can connnect to agent by ssh 
+			echo "#{private_key}" > /home/vagrant/.ssh/id_rsa
+			sudo chown vagrant:vagrant  /home/vagrant/.ssh/id_rsa
+			chmod 700 /home/vagrant/.ssh
+			chmod 600 /home/vagrant/.ssh/authorized_keys
+			chmod 600 /home/vagrant/.ssh/id_rsa
+		SHELL
+		
+		#change password of default login vagrant
+		server.vm.provision "shell", inline: <<-SHELL
+			echo 'vagrant:#{vm_config["conf_password"]}' | chpasswd
+		SHELL
+
+		# Configure VM resources dynamically based on the provider
+		server.vm.provider :virtualbox do |v|
+			v.memory = vm_config["conf_memory"] || 1024
+			v.cpus   = vm_config["conf_cpus"] || 1
+			v.gui    = true
+			v.name   = vm_config["conf_server_machine_name"]
+		end
+
+		#Run script to install and configure k3s master
+		server.vm.provision "shell", path: server_script_path
+	end
+end

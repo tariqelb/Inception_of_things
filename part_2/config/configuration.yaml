@@ -1,0 +1,15 @@
+conf_box: "bento/ubuntu-24.04"
+conf_box_version: "202404.26.0"
+conf_box_architecture: "amd64"
+conf_server_address: "192.168.56.110"
+conf_server_hostname: "TariqServer"
+conf_server_machine_name: "TariqServerMachine"
+conf_server_post_up_message: "Tariq server machine is up."
+conf_password: "tel-bouh"
+conf_ssh_private_key_path: ".ssh/id_rsa"
+conf_ssh_public_key_path: ".ssh/id_rsa.pub"
+conf_ssh_default_key: false
+conf_memory: 1024
+conf_cpus: 1
+conf_ssh_conf_file_path: "config/ssh_config"
+conf_k3s_server_script_path: "script/k3s_server_script.sh"

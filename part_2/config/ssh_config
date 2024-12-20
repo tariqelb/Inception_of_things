@@ -1,0 +1,10 @@
+Host TariqServer
+    HostName 192.168.56.110
+    Port 22
+    User vagrant
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+    PasswordAuthentication no
+    IdentitiesOnly yes
+    UserKnownHostsFile=/dev/null
+    LogLevel ERROR

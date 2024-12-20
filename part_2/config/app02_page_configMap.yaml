@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app02-nginx-index-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>App 2</title>
+    </head>
+    <body>
+      <h1>Welcome to App 2</h1>
+      <p>This is the custom index.html for app2.</p>
+    </body>
+    </html>
+
