@@ -1,0 +1,82 @@
+---
+
+#Define a project for the application 
+#allow deployment from only a resource repository on a dev namespce
+#give access to all cluster resource
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: argocd-playground-project
+  namespace: argocd
+spec:
+  description: "My Argo CD project playground"
+  sourceRepos:
+    #    - 'https://github.com/tariqelb/IOT-tel-bouh.git'
+    - 'http://gitlab-webservice-default.gitlab.svc:8181/root/inception-of-things.git'
+  destinations:
+    - namespace: dev
+      server: 'https://kubernetes.default.svc'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+---
+#Define an application associate with a project above
+#define source repo , namespace , and synchronozation policy
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-playground-application
+  namespace: argocd
+spec:
+  project: argocd-playground-project
+  source:
+    #repoURL: 'https://github.com/tariqelb/IOT-tel-bouh.git'
+    repoURL: 'http://gitlab-webservice-default.gitlab.svc:8181/root/inception-of-things.git'
+    targetRevision: master
+    path: 'manifest'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+---
+#Define an account to manage resource
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-app-sa
+  namespace: dev
+
+---
+#Define role based access controle type cluster role
+#give full permision for apigroup , resource and actions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: my-app-admin-role
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]  # Full permissions
+
+---
+#link the cluster role (rbac) to service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: my-app-admin-binding
+subjects:
+  - kind: ServiceAccount
+    name: my-app-sa
+    namespace: dev
+roleRef:
+  kind: ClusterRole
+  name: my-app-admin-role
+  apiGroup: rbac.authorization.k8s.io
