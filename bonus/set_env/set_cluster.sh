@@ -25,8 +25,8 @@ k3d cluster create mycluster
 
 #Add two namespaces dev and argocd 
 echo "------ create namespaces -----------------------"
-kubectl apply -f config/manifests/argcd-namespace.yaml
-kubectl apply -f config/manifests/dev-namespace.yaml
+kubectl apply -f config/manifest/argcd-namespace.yaml
+kubectl apply -f config/manifest/dev-namespace.yaml
 
 sleep 5
 
