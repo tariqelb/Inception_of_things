@@ -57,7 +57,7 @@ echo -e "${GREEN}git remote add origin http://localhost:8080/root/inception-of-t
 echo -e "${GREEN}git push -u origin master${NC}"
 echo -e "${GREEN}rm -rf .git${NC}"
 echo -e "${GREEN}The username and password is printed above${NC}"
-echo -e "${GR}After finish press enter to setup arcgcd.${NC}"
+echo -e "${GREEN}After finish press enter to setup arcgcd.${NC}"
 
 # Pause and wait for user to press Enter
 read -p $'Press Enter to continue...\n' 
