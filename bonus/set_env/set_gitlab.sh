@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Add the GitLab Helm repo 
+helm repo add gitlab https://charts.gitlab.io
+
 # Install GitLab
 #Get master node internal IP address
 INTERNAL_IP=$(kubectl get nodes -o wide --no-headers | awk '{print $6}')
