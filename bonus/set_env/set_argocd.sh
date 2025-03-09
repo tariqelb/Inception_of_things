@@ -53,6 +53,4 @@ while true; do
     sleep 10
 done
 
-#Strat argocd server on localhost 8888
-#echo "----- start argocd server --- "
-#kubectl port-forward svc/argocd-server -n argocd 8081:80 &
+

@@ -1,21 +1,6 @@
 #!/bin/bash
 
-#Start up K3s cluster and start argocd server
-#Get Password
-#read -sp "Enter sudo password: " Password
-#echo
 
-#Delete virtual network interface
-#echo $Password | sudo -S ip link set eth001 down
-#echo $Password | sudo -S ip link delete eth001
-#Create new virtual network interface
-#echo $Password | sudo -S ip link add eth001 type veth peer name eth001-peer
-#echo $Password | sudo ip addr add 192.168.56.110/24 dev eth001
-#echo $Password | sudo ip link set eth001 up
-
-#create a custom docker network
-#docker network rm my-custom-network
-#docker network create   --subnet=192.168.56.0/24 --gateway=192.168.56.1 my-custom-network
 
 
 #Create a cluster with k3d utility

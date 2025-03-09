@@ -4,7 +4,7 @@ metadata:
   name: app-deployment
   namespace: dev
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: playground
@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: playground
-        image: tariqelb/iot-tel-bouh:v2
+        image: tariqelb/iot-tel-bouh:v1
         ports:
         - containerPort: 8888

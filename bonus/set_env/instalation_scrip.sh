@@ -83,8 +83,6 @@ echo "--------------- Install Helm -------------------"
 echo $Password | sudo -S curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 echo $Password | sudo -S chmod 700 get_helm.sh
 echo $Password | sudo -S ./get_helm.sh
-echo $Password | sudo -S helm repo add gitlab https://charts.gitlab.io
-echo $Password | sudo -S helm repo update
 
 #Restart Docker
 echo "----- Restarting docker service... -----"

@@ -1,29 +1,46 @@
 #!/bin/bash
 
-#Add the GitLab Helm repo 
 helm repo add gitlab https://charts.gitlab.io
+
+#Define gitlab namespace
+kubectl apply -f config/manifest/gitlab-namespace.yaml
+
+# Prompt the user for Docker credentials
+read -p "Enter your Docker username: " DOCKER_USERNAME
+read -s -p "Enter your Docker password: " DOCKER_PASSWORD
+echo ""
+read -p "Enter your Docker email: " DOCKER_EMAIL
+
+# Create the Kubernetes secret
+kubectl create secret docker-registry my-dockerhub-secret \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=$DOCKER_USERNAME \
+  --docker-password=$DOCKER_PASSWORD \
+  --docker-email=$DOCKER_EMAIL \
+  -n gitlab
+
+echo "Secret 'my-dockerhub-secret' created successfully in namespace 'gitlab'."
 
 # Install GitLab
 #Get master node internal IP address
 INTERNAL_IP=$(kubectl get nodes -o wide --no-headers | awk '{print $6}')
 
-#Define gitlab namespace
-kubectl apply -f config/manifest/gitlab-namespace.yaml
 
 #Install getlab
 helm upgrade --install gitlab gitlab/gitlab -n gitlab \
-        -f config/value-minikube.yaml \
+       -f config/value-minikube.yaml \
         --set global.hosts.domain=gitlab.xip.io \
         --set global.hosts.externalIP=$INTERNAL_IP \
 	--set global.hosts.https=false \
         --timeout 600s
+
 
 sleep 5
 
 #Wait until pods ready
 echo "wait until all pods are ready (runnig) max 5 min"
 kubectl wait --for=condition=Ready pods --all -n gitlab --timeout=300s
-
+#kubectl wait --namespace gitlab --for=condition=ready pod -l app=webservice --timeout=600s || true
 #forward port to access gitlab service from localhost:8080 (check if all pod running)
 kubectl port-forward -n gitlab svc/gitlab-webservice-default  8080:8181 &
 
